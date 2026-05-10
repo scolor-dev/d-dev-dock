@@ -1,0 +1,21 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/d-dev-dock
+d-dev-dock.so
+d-dev-dock.dylib
+d-dev-dock.dll
+d-dev-dock.a
+d-dev-dock.lib
+d-dev-dock-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
+
+bin/
+
+# ランタイム
+dmd2/

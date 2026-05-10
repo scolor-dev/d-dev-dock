@@ -1,0 +1,18 @@
+{
+    "name": "d-dev-dock",
+    "description": "DDD",
+    "authors": ["scolor-dev"],
+    "license": "MIT",
+    "targetType": "executable",
+    "targetPath": "bin",
+    "sourcePaths": ["src"],
+    "mainSourceFile": "src/app.d",
+    "stringImportPaths": ["src", "views"],
+    "versions": ["EmbedStandardResources"],
+    "libs-windows": ["ole32", "shell32", "comdlg32"],
+    "dependencies": {
+        "dlangui": "~>0.10.8",
+        "eventcore": "~>0.9.39",
+        "libdparse": "~>0.25.1"
+    }
+}
