@@ -61,6 +61,16 @@ class MainWindow : VerticalLayout {
         addChild(_buildBody());
         addChild(_buildStatusBar());
     }
+    
+    override bool onKeyEvent(KeyEvent event) {
+        if (event.action == KeyAction.KeyDown &&
+            event.keyCode == KeyCode.KEY_S &&
+            (event.flags & KeyFlag.Control)) {
+            FileService.instance.saveFile();
+            return true;
+        }
+        return super.onKeyEvent(event);
+    }
 
     override bool onMouseEvent(MouseEvent event) {
         auto hwnd = (cast(Win32Window)_window).windowHandle;
@@ -157,6 +167,7 @@ class MainWindow : VerticalLayout {
                 return true;
             }
         }
+
 
         return super.onMouseEvent(event);
     }
