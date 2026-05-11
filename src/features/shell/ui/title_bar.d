@@ -108,6 +108,17 @@ class TitleBar : HorizontalLayout {
             _window.close();
             return true;
         };
+        btnClose.mouseEvent = delegate(Widget w, MouseEvent e) {
+            if (e.action == MouseAction.Move) {
+                btnClose.backgroundColor = 0xCC0000;
+                btnClose.invalidate();
+            }
+            if (e.action == MouseAction.Leave) {
+                btnClose.backgroundColor = 0x202020;
+                btnClose.invalidate();
+            }
+            return false;
+        };
         addChild(btnClose);
     }
 }

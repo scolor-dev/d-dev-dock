@@ -29,7 +29,14 @@ class EditorArea : VerticalLayout {
         _tabs.tabClose = delegate(string tabId) {
             _editors.remove(tabId);
             _tabs.removeTab(tabId);
-            if (_tabs.tabCount == 0) _activeFile = "";
+            if (_tabs.tabCount == 0) {
+                _activeFile = "";
+            } else {
+                // アクティブファイルが削除されたタブだった場合
+                if (_activeFile == tabId) {
+                    _activeFile = _tabs.selectedTabId;
+                }
+            }
         };
 
         addChild(_tabs);
