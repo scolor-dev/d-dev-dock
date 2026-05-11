@@ -3,10 +3,12 @@ import dlangui;
 import core.sys.windows.windows;
 import dlangui.platforms.windows.winapp;
 import features.shell.ui.title_bar;
+import features.shell.ui.output_panel;
 import features.file.ui.sidebar;
 import features.file.file_service;
 import features.editor.editor_service;
 import features.editor.ui.editor_area;
+import features.runner.runner_service;
 import common.window.resizer;
 import core.thread;
 
@@ -16,6 +18,7 @@ class MainWindow : VerticalLayout {
     private Window _window;
     private SideBar _sidebar;
     private EditorArea _editorArea;
+    private OutputPanel _outputPanel;
     private bool _dragging = false;
     private ResizeEdge _edge = ResizeEdge.None;
     private int _startX, _startY;
@@ -31,12 +34,14 @@ class MainWindow : VerticalLayout {
 
         _sidebar = new SideBar(window);
         _editorArea = new EditorArea();
+        _outputPanel = new OutputPanel();
 
         EditorService.instance.setEditorArea(_editorArea);
 
         // フォルダが開かれたらサイドバーに通知
         FileService.instance.addFolderOpenedListener((string path) {
             _sidebar.loadFolder(path);
+            RunnerService.instance.setProjectPath(path);
         });
 
         // ファイルが開かれたらエディタに通知
@@ -55,6 +60,16 @@ class MainWindow : VerticalLayout {
         addChild(new TitleBar(window));
         addChild(_buildBody());
         addChild(_buildStatusBar());
+    }
+    
+    override bool onKeyEvent(KeyEvent event) {
+        if (event.action == KeyAction.KeyDown &&
+            event.keyCode == KeyCode.KEY_S &&
+            (event.flags & KeyFlag.Control)) {
+            FileService.instance.saveFile();
+            return true;
+        }
+        return super.onKeyEvent(event);
     }
 
     override bool onMouseEvent(MouseEvent event) {
@@ -153,6 +168,7 @@ class MainWindow : VerticalLayout {
             }
         }
 
+
         return super.onMouseEvent(event);
     }
 
@@ -161,7 +177,14 @@ class MainWindow : VerticalLayout {
         body_.layoutWidth  = FILL_PARENT;
         body_.layoutHeight = FILL_PARENT;
         body_.addChild(_sidebar);
-        body_.addChild(_editorArea);
+
+        auto right = new VerticalLayout("right_panel");
+        right.layoutWidth  = FILL_PARENT;
+        right.layoutHeight = FILL_PARENT;
+        right.addChild(_editorArea);
+        right.addChild(_outputPanel);
+
+        body_.addChild(right);
         return body_;
     }
 
@@ -183,5 +206,9 @@ class MainWindow : VerticalLayout {
     void setStatus(dstring text) {
         auto label = childById!TextWidget("status_label");
         if (label) label.text = text;
+    }
+
+    ~this() {
+        _threadRunning = false;
     }
 }

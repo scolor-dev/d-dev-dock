@@ -1,6 +1,8 @@
 module features.file.ui.sidebar;
 import dlangui;
 import dlangui.dialogs.inputbox;
+import dlangui.platforms.windows.winapp;
+import core.sys.windows.windows;
 import common.fs_watcher;
 import features.file.file_service;
 import std.file;
@@ -82,6 +84,7 @@ class SideBar : VerticalLayout {
         }
         menu.add(new MenuItem(new Action(3, "名前変更"d)));
         menu.add(new MenuItem(new Action(4, "削除"d)));
+        menu.add(new MenuItem(new Action(5, "移動先を選択"d)));
 
         auto popup = new PopupMenu(menu);
         popup.menuItemClick = delegate(MenuItem mi) {
@@ -90,6 +93,7 @@ class SideBar : VerticalLayout {
                 case 2: _createFolder(path); break;
                 case 3: _rename(path);       break;
                 case 4: _delete(path);       break;
+                case 5: _move(path); break;
                 default: break;
             }
             _currentPopup = null;
@@ -159,6 +163,21 @@ class SideBar : VerticalLayout {
                 return true;
             }
         );
+    }
+
+    private void _move(string path) {
+        import features.file.file_dialog : showFolderDialog;
+        import std.file : exists, isDir, rename;
+        import std.path : buildPath, baseName;
+
+        auto dest = showFolderDialog(
+            (cast(Win32Window)_window).windowHandle
+        );
+        if (dest is null) return;
+        if (!dest.exists || !dest.isDir) return;
+        try {
+            rename(path, buildPath(dest, path.baseName));
+        } catch (Exception e) {}
     }
 
     private void _reloadTree() {
