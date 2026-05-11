@@ -1,5 +1,6 @@
 module features.file.file_service;
 import features.file.file_dialog;
+import features.file.file_ops;
 
 class FileService {
 
@@ -81,5 +82,25 @@ class FileService {
             EditorService.instance.updateFilePath(
                 EditorService.instance.activeFilePath(), newPath);
         } catch (Exception e) {}
+    }
+
+    void createFile(string dir, string name) {
+        features.file.file_ops.createFile(dir, name);
+    }
+
+    void createFolder(string dir, string name) {
+        features.file.file_ops.createFolder(dir, name);
+    }
+
+    void deleteEntry(string path) {
+        import std.file : isFile, isDir;
+        if (path.isFile)
+            features.file.file_ops.deleteFile(path);
+        else if (path.isDir)
+            features.file.file_ops.deleteFolder(path);
+    }
+
+    void renameEntry(string path, string newName) {
+        features.file.file_ops.renameEntry(path, newName);
     }
 }

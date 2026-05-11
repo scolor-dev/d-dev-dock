@@ -29,7 +29,7 @@ class MainWindow : VerticalLayout {
         layoutWidth  = FILL_PARENT;
         layoutHeight = FILL_PARENT;
 
-        _sidebar    = new SideBar();
+        _sidebar = new SideBar(window);
         _editorArea = new EditorArea();
 
         EditorService.instance.setEditorArea(_editorArea);
@@ -68,12 +68,18 @@ class MainWindow : VerticalLayout {
         GetWindowRect(hwnd, &rc);
         int localX = sx - rc.left;
         int localY = sy - rc.top;
+    
+        
 
         if (event.action == MouseAction.Move) {
             if (!_dragging) {
                 auto edge = detectEdge(hwnd, localX, localY);
                 updateCursor(edge);
             }
+        }
+
+        if (event.action == MouseAction.ButtonUp) {
+            _sidebar.closeCurrentPopup();
         }
 
         if (event.action == MouseAction.ButtonDown &&
