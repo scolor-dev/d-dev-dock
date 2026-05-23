@@ -44,6 +44,14 @@ class SideBar : VerticalLayout {
                 onFileSelected(path);
         };
 
+        _tree.expandedChange = delegate(TreeItems w, TreeItem item) {
+            if (!item.expanded) return;
+            if (item.childCount == 1 && item.child(0).id == "__loading__") {
+                item.clear();
+                _addDirShallow(item, item.id);
+            }
+        };
+
         _tree.mouseEvent = delegate(Widget w, MouseEvent e) {
             if (e.action == MouseAction.ButtonDown &&
                 e.button == MouseButton.Right) {
@@ -186,18 +194,20 @@ class SideBar : VerticalLayout {
             _currentPath,
             (_currentPath.baseName ~ "/").to!dstring
         );
-        _addDir(root, _currentPath);
+        _addDirShallow(root, _currentPath);
         _tree.invalidate();
     }
 
-    private void _addDir(TreeItem parent, string path) {
+    private void _addDirShallow(TreeItem parent, string path) {
         try {
             foreach (entry; dirEntries(path, SpanMode.shallow)) {
                 auto name  = entry.name.baseName;
                 auto label = (name ~ (entry.isDir ? "/" : "")).to!dstring;
                 auto child = parent.newChild(entry.name, label);
-                if (entry.isDir)
-                    _addDir(child, entry.name);
+                if (entry.isDir) {
+                    child.collapse();
+                    child.newChild("__loading__", ""d);
+                }
             }
         } catch (Exception e) {}
     }
