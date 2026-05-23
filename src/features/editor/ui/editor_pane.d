@@ -11,6 +11,17 @@ import std.path  : baseName, extension;
 class EditorPane : SourceEdit {
 
     private string _path;
+    private bool   _dirty = false;
+
+    void delegate() onDirtyChanged;
+
+    bool dirty() { return _dirty; }
+
+    void markClean() {
+        _dirty = false;
+        content.notifyContentSaved();
+        if (onDirtyChanged !is null) onDirtyChanged();
+    }
 
     this(string path) {
         super(path);
@@ -34,7 +45,16 @@ class EditorPane : SourceEdit {
             setTokenHightlightColor(TokenCategory.Identifier, 0x0083A598);
             setTokenHightlightColor(TokenCategory.Op,         0x00D4BE98);
         }
+
+        content.contentChanged.connect(&_onContentChange);
     }
 
     string path() { return _path; }
+
+    private void _onContentChange(EditableContent, EditOperation, ref TextRange, ref TextRange, Object) {
+        if (!_dirty) {
+            _dirty = true;
+            if (onDirtyChanged !is null) onDirtyChanged();
+        }
+    }
 }

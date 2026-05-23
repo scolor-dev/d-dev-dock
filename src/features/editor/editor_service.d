@@ -46,6 +46,11 @@ class EditorService {
         _editorArea.updateFilePath(oldPath, newPath);
     }
 
+    void markActiveClean() {
+        if (_editorArea is null) return;
+        _editorArea.markClean(activeFilePath());
+    }
+
     void undo() {
         // TODO
     }

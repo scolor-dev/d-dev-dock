@@ -45,13 +45,17 @@ class EditorArea : VerticalLayout {
     void newFile() {
         _newFileCount++;
         auto tabId    = "new_" ~ _newFileCount.to!string;
-        auto tabLabel = ("新規 " ~ _newFileCount.to!string).to!dstring;
+        auto baseLabel = ("新規 " ~ _newFileCount.to!string).to!dstring;
 
         auto pane = new EditorPane(tabId);
         pane.id   = tabId;
 
+        pane.onDirtyChanged = () {
+            _tabs.renameTab(tabId, pane.dirty ? baseLabel ~ "*"d : baseLabel);
+        };
+
         _editors[tabId] = pane;
-        _tabs.addTab(pane, tabLabel, null, true);
+        _tabs.addTab(pane, baseLabel, null, true);
         _tabs.selectTab(tabId);
         _activeFile = tabId;
     }
@@ -62,13 +66,23 @@ class EditorArea : VerticalLayout {
             return;
         }
 
+        auto baseLabel = path.baseName.to!dstring;
         auto pane = new EditorPane(path);
         pane.id   = path;
 
+        pane.onDirtyChanged = () {
+            _tabs.renameTab(path, pane.dirty ? baseLabel ~ "*"d : baseLabel);
+        };
+
         _editors[path] = pane;
-        _tabs.addTab(pane, path.baseName.to!dstring, null, true);
+        _tabs.addTab(pane, baseLabel, null, true);
         _tabs.selectTab(path);
         _activeFile = path;
+    }
+
+    void markClean(string path) {
+        if (auto p = path in _editors)
+            (*p).markClean();
     }
 
     EditorPane activeEditor() {

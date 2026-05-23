@@ -52,6 +52,7 @@ class FileService {
         auto text = EditorService.instance.activeFileText();
         try {
             write(path, to!string(text));
+            EditorService.instance.markActiveClean();
         } catch (Exception e) {}
     }
 
@@ -81,6 +82,7 @@ class FileService {
             write(newPath, to!string(text));
             EditorService.instance.updateFilePath(
                 EditorService.instance.activeFilePath(), newPath);
+            EditorService.instance.markActiveClean();
         } catch (Exception e) {}
     }
 
