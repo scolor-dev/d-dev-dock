@@ -44,6 +44,13 @@ class MainWindow : VerticalLayout {
             RunnerService.instance.setProjectPath(path);
         });
 
+        // dub init 完了後にプロジェクトをサイドバーに表示
+        RunnerService.instance.onProjectInitialized = (string path) {
+            window.executeInUiThread({
+                _sidebar.loadFolder(path);
+            });
+        };
+
         // ファイルが開かれたらエディタに通知
         FileService.instance.addFileOpenedListener((string path) {
             _editorArea.openFile(path);

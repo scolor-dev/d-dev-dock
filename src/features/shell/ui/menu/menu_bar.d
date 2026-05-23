@@ -24,15 +24,16 @@ class MenuBar : MainMenu {
         editMenu.add(new MenuItem(new Action(204, "コピー"d)));
         editMenu.add(new MenuItem(new Action(205, "貼り付け"d)));
 
-        auto runMenu = new MenuItem(new Action(3, "実行"d));
-        runMenu.add(new MenuItem(new Action(301, "実行"d)));
-        runMenu.add(new MenuItem(new Action(302, "ビルド"d)));
-        runMenu.add(new MenuItem(new Action(303, "デバッグ"d)));
+        auto dubMenu = new MenuItem(new Action(3, "DUB"d));
+        dubMenu.add(new MenuItem(new Action(301, "実行"d)));
+        dubMenu.add(new MenuItem(new Action(302, "ビルド"d)));
+        dubMenu.add(new MenuItem(new Action(303, "デバッグ"d)));
+        dubMenu.add(new MenuItem(new Action(304, "Init"d)));
 
         auto root = new MenuItem();
         root.add(fileMenu);
         root.add(editMenu);
-        root.add(runMenu);
+        root.add(dubMenu);
 
         menuItems = root;
 
@@ -53,6 +54,7 @@ class MenuBar : MainMenu {
                 case 301: RunnerService.instance.run();      break;
                 case 302: RunnerService.instance.build();    break;
                 case 303: RunnerService.instance.debug_();   break;
+                case 304: RunnerService.instance.init_();    break;
 
                 default: break;
             }
