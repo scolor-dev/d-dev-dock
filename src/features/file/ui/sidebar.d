@@ -9,13 +9,27 @@ import std.file;
 import std.path;
 import std.conv;
 
+private class SidebarTree : TreeWidget {
+    this(string id) { super(id); }
+    override bool onMouseEvent(MouseEvent event) {
+        if (event.action == MouseAction.Wheel && _vscrollbar !is null) {
+            _vscrollbar.sendScrollEvent(
+                event.wheelDelta > 0 ? ScrollAction.LineUp : ScrollAction.LineDown
+            );
+            return true;
+        }
+        return super.onMouseEvent(event);
+    }
+}
+
 class SideBar : VerticalLayout {
 
-    private TreeWidget _tree;
+    private SidebarTree _tree;
     private FsWatcher  _watcher;
     private PopupMenu _currentPopup;
     private string     _currentPath;
     private Window     _window;
+    private bool       _reloadPending;
 
     void delegate(string) onFileSelected;
 
@@ -31,12 +45,12 @@ class SideBar : VerticalLayout {
         label.padding   = Rect(12, 8, 12, 8);
         addChild(label);
 
-        _tree = new TreeWidget("file_tree");
+        _tree = new SidebarTree("file_tree");
         _tree.layoutWidth  = FILL_PARENT;
         _tree.layoutHeight = FILL_PARENT;
         _tree.backgroundColor = 0x252526;
 
-        _tree.selectionChange = delegate(TreeItems w, TreeItem item, bool activated) {
+        _tree.selectionChange = delegate(TreeItems, TreeItem item, bool activated) {
             if (!activated) return;
             if (onFileSelected is null) return;
             auto path = item.id;
@@ -44,7 +58,7 @@ class SideBar : VerticalLayout {
                 onFileSelected(path);
         };
 
-        _tree.expandedChange = delegate(TreeItems w, TreeItem item) {
+        _tree.expandedChange = delegate(TreeItems, TreeItem item) {
             if (!item.expanded) return;
             if (item.childCount == 1 && item.child(0).id == "__loading__") {
                 item.clear();
@@ -72,9 +86,13 @@ class SideBar : VerticalLayout {
         if (_watcher !is null) _watcher.stop();
         _watcher = new FsWatcher();
         _watcher.onChange = {
-            window.executeInUiThread({
-                _reloadTree();
-            });
+            if (!_reloadPending) {
+                _reloadPending = true;
+                window.executeInUiThread({
+                    _reloadPending = false;
+                    _reloadTree();
+                });
+            }
         };
         _watcher.start(path);
 
